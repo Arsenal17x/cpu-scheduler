@@ -84,34 +84,9 @@ body {
   }
 }
 
-@keyframes gradient-move {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
-}
-
-.modern-bg {
-  background: linear-gradient(120deg, #f6d365 0%, #fda085 50%, #a1c4fd 100%);
-  background-size: 200% 200%;
-  animation: gradient-move 12s ease-in-out infinite;
-}
-
-/* Remove or comment out the .modern-black-bg class if you want to fully revert: */
-.modern-black-bg {
-  /* background: linear-gradient(120deg, #232526 0%, #0f2027 100%);
-  background-size: 200% 200%;
-  animation: gradient-move 12s ease-in-out infinite; */
-}
-
 @layer base {
   * {
-    border: hsl(var(--border));
+    @apply border-border;
   }
   body {
     @apply bg-background text-foreground;
