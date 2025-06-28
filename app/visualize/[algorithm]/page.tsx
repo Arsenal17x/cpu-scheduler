@@ -16,6 +16,10 @@ import UtilizationDashboard from "@/components/utilization-dashboard"
 import RealTimeVisualization from "@/components/real-time-visualization"
 import type { Process, SchedulingResult } from "@/lib/types"
 import { runSchedulingAlgorithm } from "@/lib/scheduling"
+import { exportToCSV } from "@/lib/export"
+import { saveAs } from "file-saver"
+import jsPDF from "jspdf"
+
 
 export default function VisualizePage() {
   const params = useParams()
@@ -133,6 +137,39 @@ export default function VisualizePage() {
   const handleSpeedChange = (value: number[]) => {
     setAnimationSpeed(value[0])
   }
+
+  function handleExportCSV() {
+  if (!result) return
+  const csvData = exportToCSV(result.schedule, result.metrics)
+  const blob = new Blob([csvData], { type: "text/csv;charset=utf-8;" })
+  saveAs(blob, "cpu-schedule-results.csv")
+}
+
+function handleExportPDF() {
+  if (!result) return
+  const doc = new jsPDF()
+  doc.setFontSize(14)
+  doc.text("CPU Scheduling Results", 10, 10)
+
+  let y = 20
+  doc.setFontSize(12)
+  doc.text("Schedule:", 10, y)
+
+  result.schedule.forEach(item => {
+    y += 8
+    doc.text(`Process ${item.processId}: ${item.startTime} -> ${item.endTime}`, 10, y)
+  })
+
+  y += 12
+  doc.text("Metrics:", 10, y)
+
+  Object.entries(result.metrics).forEach(([key, value]) => {
+    y += 8
+    doc.text(`${key}: ${value}`, 10, y)
+  })
+
+  doc.save("cpu-schedule-results.pdf")
+}
 
   return (
     <div className="container py-10 px-4 md:px-6">
@@ -297,6 +334,23 @@ export default function VisualizePage() {
                   <GanttChart schedule={result.schedule} processes={processes} />
                 </CardContent>
               </Card>
+              {result && (
+              <div className="flex gap-4 mb-4">
+                <button
+                  className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+                  onClick={handleExportCSV}
+                >
+                  Export to CSV
+                </button>
+
+                <button
+                  className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+                  onClick={handleExportPDF}
+                >
+                  Export to PDF
+                </button>
+              </div>
+            )}
 
               <Card>
                 <CardHeader>
